@@ -14,6 +14,7 @@
     <title>Meals</title>
 </head>
 <body>
+    <h1>Meals</h1>
     <table border="1">
         <thead>
             <tr>
@@ -26,11 +27,17 @@
         </thead>
         <tbody>
             <c:forEach var="mealWithExcess" items="${requestScope.mealsWithExcess}">
-                <tr>
-                    <td><fmt:parseDate value="${mealWithExcess.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="both" />
+                <c:if test="${mealWithExcess.excess == true}">
+                    <c:set var="color" value=" red"/>
+                </c:if>
+                <c:if test="${mealWithExcess.excess == false}">
+                    <c:set var="color" value=" green"/>
+                </c:if>>
+                <tr style="color:${color}">
+                    <td style="height: 35px;width: 150px"><fmt:parseDate value="${mealWithExcess.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="both" />
                         <fmt:formatDate pattern="dd.MM.yyyy HH:mm" value="${ parsedDateTime }" /></td>
-                    <td><c:out value="${mealWithExcess.description}" /></td>
-                    <td><c:out value="${mealWithExcess.calories}" /></td>
+                    <td style="height: 35px;width: 200px"><c:out value="${mealWithExcess.description}" /></td>
+                    <td style="height: 35px;width: 100px"><c:out value="${mealWithExcess.calories}" /></td>
                 </tr>
             </c:forEach>
         </tbody>
