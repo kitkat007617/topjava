@@ -6,6 +6,7 @@ import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.user.AdminRestController;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SpringMain {
