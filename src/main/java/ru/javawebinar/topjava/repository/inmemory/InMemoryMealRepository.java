@@ -8,6 +8,8 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,6 +24,9 @@ public class InMemoryMealRepository implements MealRepository {
 
     {
         MealsUtil.meals.forEach(meal -> save(meal, SecurityUtil.authUserId()));
+
+        save(new Meal(LocalDateTime.of(1999, Month.MAY, 30, 0, 0), "Торт", 500), 1);
+        save(new Meal(LocalDateTime.of(2021, Month.MAY, 30, 0, 0), "Еще торт", 500), 2);
     }
 
     @Override
@@ -36,6 +41,8 @@ public class InMemoryMealRepository implements MealRepository {
         }
         // handle case: update, but not present in storage
         else {
+            if (!repository.get(meal.getId()).containsKey(userId))
+                return null;
             repository.put(meal.getId(), mapEntity);
         }
         return meal;
@@ -59,7 +66,7 @@ public class InMemoryMealRepository implements MealRepository {
     public Collection<Meal> getAll(int userId) {
         return repository.values().stream().filter(map -> map.containsKey(userId)).map(map -> map.get(userId)).
                 sorted((meal1, meal2) -> {
-                    return meal2.getDate().compareTo(meal1.getDate());
+                    return meal2.getDateTime().compareTo(meal1.getDateTime());
                 }).collect(Collectors.toList());
     }
 }
