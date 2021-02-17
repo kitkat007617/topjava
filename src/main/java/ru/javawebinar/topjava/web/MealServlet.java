@@ -19,27 +19,27 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-@Component
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
 
-    ConfigurableApplicationContext context;
-
     private MealRestController controller;
 
-    @Override
-    public void destroy() {
-        context.close();
-    }
+//    @Override
+//    public void destroy() {
+//        context.close();
+//    }
 
     @Override
     public void init() throws ServletException {
-        this.context = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("spring/spring-app.xml");
         this.controller = context.getBean(MealRestController.class);
+        context.close();
     }
 
     @Override
@@ -76,6 +76,15 @@ public class MealServlet extends HttpServlet {
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
+            case "filter":
+                log.info("filter");
+                LocalDate startDate = localDateParse(request.getParameter("startDate"));
+                LocalDate endDate = localDateParse(request.getParameter("endDate"));
+                LocalTime startTime = localTimeParse(request.getParameter("startTime"));
+                LocalTime endTime = localTimeParse(request.getParameter("endTime"));
+                request.setAttribute("meals", controller.getAll(startDate, startTime, endDate, endTime));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                break;
             case "all":
             default:
                 log.info("getAll");
@@ -88,5 +97,17 @@ public class MealServlet extends HttpServlet {
     private int getId(HttpServletRequest request) {
         String paramId = Objects.requireNonNull(request.getParameter("id"));
         return Integer.parseInt(paramId);
+    }
+
+    private LocalDate localDateParse(String date){
+        if (date.isEmpty())
+            return null;
+        return LocalDate.parse(date);
+    }
+
+    private LocalTime localTimeParse(String time){
+        if (time.isEmpty())
+            return null;
+        return LocalTime.parse(time);
     }
 }

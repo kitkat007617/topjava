@@ -14,6 +14,12 @@
         .excess {
             color: red;
         }
+        .selectDate{
+            display: flex;
+            flex-direction: column;
+            background: aquamarine;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -23,6 +29,21 @@
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
+    <h2>Filter Parameters</h2>
+    <form action="meals" method="get">
+        From Date<input type="date" name="startDate" value="" class="selectDate">
+        Date To<input type="date" name="endDate" value="" class="selectDate">
+        <dl>
+            <dt>From Time</dt>
+            <dd><input type="time" name="startTime" value=""></dd>
+        </dl>
+        <dl>
+            <dt>Time To</dt>
+            <dd><input type="time" name="endTime", value=""></dd>
+        </dl>
+        <button type="submit" name="action" value="filter">Start filter</button>
+        <button type="submit" name="action" value="getAll">Reset Filter</button>
+    </form>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
