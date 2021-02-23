@@ -14,14 +14,12 @@ public class MealTestData {
     public static final int MEAL_ID = AbstractBaseEntity.START_SEQ + 2;
     public static final int NOT_FOUND = 1;
 
-    public static final List<Meal> meals = Arrays.asList(
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
-    );
+    public static final Meal meal1 = new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000);
+    public static final Meal meal2 = new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500);
+    public static final Meal meal3 = new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100);
+    public static final Meal meal4 = new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000);
+    public static final Meal meal5 = new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500);
+    public static final Meal meal6 = new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410);
 
     public static void assertMatch(Meal actual, Meal expected){
         assertThat(expected).usingRecursiveComparison().ignoringFields("id").isEqualTo(actual);
@@ -45,7 +43,7 @@ public class MealTestData {
     }
 
     public static Meal getUpdate(){
-        Meal updated = meals.get(0);
+        Meal updated = meal2;
         updated.setId(MEAL_ID);
         updated.setDateTime(LocalDateTime.MIN);
         updated.setDescription("Updated");

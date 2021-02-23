@@ -38,7 +38,17 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal created = mealService.get(MealTestData.MEAL_ID, UserTestData.USER_ID);
-        MealTestData.assertMatch(created, MealTestData.meals.get(0));
+        MealTestData.assertMatch(created, MealTestData.meal1);
+    }
+
+    @Test
+    public void getMealOfAnotherUser() {
+        assertThrows(NotFoundException.class, () -> mealService.get(MealTestData.MEAL_ID, 2));
+    }
+
+    @Test
+    public void getNotFound() {
+        assertThrows(NotFoundException.class, () -> mealService.get(MealTestData.MEAL_ID, 2));
     }
 
     @Test
@@ -46,6 +56,11 @@ public class MealServiceTest {
         mealService.delete(MealTestData.MEAL_ID, UserTestData.USER_ID);
         assertThrows(NotFoundException.class, () -> mealService.get(MealTestData.MEAL_ID,
                 UserTestData.USER_ID));
+    }
+
+    @Test
+    public void deleteNotFound(){
+        assertThrows(NotFoundException.class, () -> mealService.delete(MealTestData.MEAL_ID, 2));
     }
 
     @Test
@@ -63,7 +78,8 @@ public class MealServiceTest {
     @Test
     public void getAll() {
         List<Meal> actual = mealService.getAll(UserTestData.USER_ID);
-        MealTestData.assertMatch(actual, MealTestData.meals);
+        MealTestData.assertMatch(actual, MealTestData.meal1, MealTestData.meal2, MealTestData.meal3,
+                MealTestData.meal4, MealTestData.meal5, MealTestData.meal6);
     }
 
     @Test
