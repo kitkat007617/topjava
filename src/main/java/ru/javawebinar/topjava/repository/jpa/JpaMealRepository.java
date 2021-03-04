@@ -9,7 +9,6 @@ import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,13 +23,16 @@ public class JpaMealRepository implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
-        User ref = em.getReference(User.class, userId);
-        meal.setUser(ref);
         if (meal.isNew()) {
+            User ref = em.getReference(User.class, userId);
+            meal.setUser(ref);
             em.persist(meal);
             return meal;
+        } else {
+            if (meal.getUser().getId() == userId)
+                return em.merge(meal);
         }
-        return em.merge(meal);
+        return null;
     }
 
     @Override
@@ -38,14 +40,14 @@ public class JpaMealRepository implements MealRepository {
     public boolean delete(int id, int userId) {
         return em.createNamedQuery(Meal.DELETE)
                 .setParameter("id", id)
-                .setParameter(1, userId)
+                .setParameter("userId", userId)
                 .executeUpdate() != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
         List<Meal> meals = em.createNamedQuery(Meal.GET, Meal.class).setParameter("id", id).
-                setParameter(1, userId).getResultList();
+                setParameter("userId", userId).getResultList();
         return DataAccessUtils.singleResult(meals);
     }
 
@@ -59,8 +61,8 @@ public class JpaMealRepository implements MealRepository {
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return em.createNamedQuery(Meal.ALL_FILTER, Meal.class)
                 .setParameter("userId", userId)
-                .setParameter("startDateTime", startDateTime)
-                .setParameter("endDateTime", endDateTime)
+                .setParameter(2, startDateTime)
+                .setParameter(3, endDateTime)
                 .getResultList();
     }
 }
