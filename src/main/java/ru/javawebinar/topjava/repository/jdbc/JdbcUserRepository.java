@@ -13,7 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
+import ru.javawebinar.topjava.util.ValidationFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -56,6 +65,8 @@ public class JdbcUserRepository implements UserRepository {
 
     private final SimpleJdbcInsert insertUser;
 
+    private final Validator validator;
+
     @Autowired
     public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.insertUser = new SimpleJdbcInsert(jdbcTemplate)
@@ -64,20 +75,22 @@ public class JdbcUserRepository implements UserRepository {
 
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+
+        ValidatorFactory validationFactory = Validation.buildDefaultValidatorFactory();
+        this.validator = validationFactory.getValidator();
     }
 
     @Override
     @Transactional
-    public User save(User user) {
+    public User save(@NotNull User user) {
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
-
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
         } else if (namedParameterJdbcTemplate.update("""
-                   UPDATE users SET name=:name, email=:email, password=:password, 
-                   registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
-                """, parameterSource) == 0) {
+               UPDATE users SET name=:name, email=:email, password=:password, 
+               registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
+            """, parameterSource) == 0) {
             return null;
         }
         return user;
@@ -85,12 +98,12 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     @Transactional
-    public boolean delete(int id) {
+    public boolean delete(@Positive int id) {
         return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) != 0;
     }
 
     @Override
-    public User get(int id) {
+    public User get(@Positive int id) {
         List<User> users = jdbcTemplate.query("""
         SELECT u.id, name, email, password, registered, enabled, calories_per_day, ur.role 
         FROM users u LEFT JOIN user_roles ur ON ur.user_id = u.id WHERE u.id=?
@@ -99,7 +112,7 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public User getByEmail(String email) {
+    public User getByEmail(@Email String email) {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         List<User> users = jdbcTemplate.query("""
         SELECT u.id, name, email, password, registered, enabled, calories_per_day, string_agg(ur.role, ' ') 
@@ -125,7 +138,7 @@ public class JdbcUserRepository implements UserRepository {
 //
 //    }
 
-    public boolean deleteRole(int userId, Role role) {
+    public boolean deleteRole(@Positive int userId, @NotNull Role role) {
         return jdbcTemplate.update("""
                 DELETE FROM user_roles ur WHERE ur.user_id=? AND ur.role=?
         """, userId, role.toString()) != 0;
