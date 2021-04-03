@@ -7,7 +7,7 @@ const ctx = {
 
 // $(document).ready(function () {
 $(function () {
-    makeEditable(
+    makeEditableUserTable(
         $("#datatable").DataTable({
             "paging": false,
             "info": true,
@@ -45,3 +45,49 @@ $(function () {
         })
     );
 });
+
+function makeEditableUserTable(datatableApi) {
+    ctx.datatableApi = datatableApi;
+
+    form = $('#detailsForm');
+    $(".delete").click(function () {
+        if (confirm('Are you sure?')) {
+            deleteRow($(this).closest('tr').attr("id"));
+        }
+    });
+
+    $(document).ajaxError(function (event, jqXHR, options, jsExc) {
+        failNoty(jqXHR);
+    });
+
+    // solve problem with cache in IE: https://stackoverflow.com/a/4303862/548473
+    $.ajaxSetup({cache: false});
+}
+
+function add() {
+    form.find(":input").val("");
+    $("#editRow").modal();
+}
+
+function deleteRow(id) {
+    $.ajax({
+        url: ctx.ajaxUrl + id,
+        type: "DELETE"
+    }).done(function () {
+        updateTable();
+        successNoty("Deleted");
+    });
+}
+
+function save() {
+    const form = $("#detailsForm");
+    $.ajax({
+        type: "POST",
+        url: ctx.ajaxUrl,
+        data: form.serialize()
+    }).done(function () {
+        $("#editRow").modal("hide");
+        updateTable();
+        successNoty("Saved");
+    });
+}
