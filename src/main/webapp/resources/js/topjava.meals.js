@@ -1,4 +1,5 @@
 const mealsAjaxUrl = "meals";
+let mealForm;
 
 // https://stackoverflow.com/a/5064235/548473
 const ctx = {
@@ -76,7 +77,7 @@ function saveMeal() {
     const form = $("#detailsForm");
     $.ajax({
         type: "POST",
-        url: ctx.ajaxUrl,
+        url: ctx.ajaxUrl + "/",
         data: form.serialize()
     }).done(function () {
         $("#editMealRow").modal("hide");
@@ -84,3 +85,26 @@ function saveMeal() {
         successNoty("Saved");
     });
 }
+
+function filter() {
+    filterMeals($(this).closest('tr').attr("startDate").attr("startTime").attr("endDate").attr("endTime"))
+}
+
+function filterMeals(startDate, startTime, endDate, endTime) {
+    $.ajax({
+        type: "GET",
+        url: ctx.ajaxUrl + "/filter?startDate=" + startDate + "&startTime=" + startTime + "&endDate=" + endDate +
+            "&endTime=" + endTime,
+        success: function (data) {
+            ctx.datatableApi.clear().rows.add(data).draw();
+        }
+    }).done(function () {
+        successNoty("Filter");
+    });
+}
+
+// function updateTableAfterFilter() {
+//     $.get(ctx.ajaxUrl + "/filter", function (data) {
+//         ctx.datatableApi.clear().rows.add(data).draw();
+//     })
+// }
