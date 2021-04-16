@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web.meal;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class MealUIController extends AbstractMealController {
 
     @Override
     @GetMapping( "/{id}")
+    @JsonView(View.JsonUI.class)
     public Meal get(@PathVariable int id) {
         return super.get(id);
     }
