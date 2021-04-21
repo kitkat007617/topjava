@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,19 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ModelAndView dataIntegrityViolationErrorHandler(HttpServletRequest req, DataIntegrityViolationException e) {
+        log.error("DataIntegrityViolationException at request " + req.getRequestURL(), e);
+        Throwable rootCause = ValidationUtil.getRootCause(e);
+
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
+        ModelAndView mav = new ModelAndView("exception", Map.of("status", httpStatus,
+                "message", "User with this email already exists",
+                "exception", rootCause));
+        mav.setStatus(httpStatus);
+        return mav;
+    }
 
     @ExceptionHandler(Exception.class)
     public ModelAndView defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {

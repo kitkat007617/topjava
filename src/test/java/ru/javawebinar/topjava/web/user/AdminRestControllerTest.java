@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.javawebinar.topjava.UserTestData;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -112,6 +114,29 @@ class AdminRestControllerTest extends AbstractControllerTest {
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(userService.get(newId), newUser);
+    }
+
+    @Test
+    void createUserWithWrongFields() throws Exception {
+        User user = new User(null, "", "her777.ru", "", 600, Role.USER);
+
+        perform(MockMvcRequestBuilders.post(REST_URL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(userHttpBasic(admin))
+            .content(jsonWithPassword(user, "1")))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+
+    @Test
+    void updateUserByWrongFields() throws Exception {
+        User user = new User(100000, "", "her777.ru", "", 600, Role.USER);
+
+        perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(user, "1")))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

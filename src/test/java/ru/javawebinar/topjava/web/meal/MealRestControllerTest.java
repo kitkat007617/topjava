@@ -12,6 +12,8 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -82,6 +84,17 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void updateWithWrongFields() throws Exception {
+        Meal updated = new Meal(MEAL1_ID, LocalDateTime.now(), "", -1);
+
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(JsonUtil.writeValue(updated))
+        .with(userHttpBasic(user)))
+        .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         Meal newMeal = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -94,6 +107,17 @@ class MealRestControllerTest extends AbstractControllerTest {
         newMeal.setId(newId);
         MEAL_MATCHER.assertMatch(created, newMeal);
         MEAL_MATCHER.assertMatch(mealService.get(newId, USER_ID), newMeal);
+    }
+
+    @Test
+    void createWithWrongField() throws Exception {
+        Meal newMeal = new Meal(null, LocalDateTime.now(), "", -1);
+
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newMeal))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
