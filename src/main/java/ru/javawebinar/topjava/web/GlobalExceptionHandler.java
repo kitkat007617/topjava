@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import ru.javawebinar.topjava.util.ValidationUtil;
+import ru.javawebinar.topjava.util.exception.ApplicationException;
 import ru.javawebinar.topjava.util.exception.ErrorType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
         Throwable rootCause = ValidationUtil.logAndGetRootCause(log, req, e, logException, errorType);
 
         ModelAndView mav = new ModelAndView("exception",
-                Map.of("exception", rootCause, "message", ValidationUtil.getMessage(rootCause),
+                Map.of("exception", rootCause, "message", code != null ? messageSourceAccessor.getMessage(code) : ValidationUtil.getMessage(rootCause),
                         "typeMessage", messageSourceAccessor.getMessage(errorType.getErrorCode()),
                         "status", errorType.getStatus()));
         mav.setStatus(errorType.getStatus());
