@@ -24,6 +24,11 @@ public class GlobalExceptionHandler {
         this.messageSourceAccessor = messageSourceAccessor;
     }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ModelAndView wrongRequest(HttpServletRequest req, NoHandlerFoundException e) throws Exception {
+        return logAndGetExceptionView(req, e, false, ErrorType.WRONG_REQUEST, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ModelAndView defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
         log.error("Exception at request " + req.getRequestURL(), e);
@@ -32,7 +37,7 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         ModelAndView mav = new ModelAndView("exception",
                 Map.of("exception", rootCause, "message", ValidationUtil.getMessage(rootCause),
-                        "typeMessage", messageSourceAccessor.getMessage(ErrorType.APP_ERROR.getErrorCode()),
+                        "typeMessage", messageSourceAccessor.getMessage(errorType.getErrorCode()),
                         "status", httpStatus));
         mav.setStatus(httpStatus);
 
