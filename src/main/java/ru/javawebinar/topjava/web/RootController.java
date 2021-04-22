@@ -8,6 +8,7 @@ import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+@ApiIgnore
 @Controller
 public class RootController {
 
