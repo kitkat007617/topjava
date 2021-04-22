@@ -41,8 +41,8 @@ public class GlobalExceptionHandler {
         ModelAndView mav = new ModelAndView("exception",
                 Map.of("exception", rootCause, "message", ValidationUtil.getMessage(rootCause),
                         "typeMessage", messageSourceAccessor.getMessage(errorType.getErrorCode()),
-                        "status", httpStatus));
-        mav.setStatus(httpStatus);
+                        "status", errorType.getStatus()));
+        mav.setStatus(errorType.getStatus());
         return mav;
     }
 }
