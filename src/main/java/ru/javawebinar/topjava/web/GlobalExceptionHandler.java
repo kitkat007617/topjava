@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.util.ValidationUtil;
+import ru.javawebinar.topjava.util.exception.ErrorInfo;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -18,16 +20,18 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ModelAndView dataIntegrityViolationErrorHandler(HttpServletRequest req, DataIntegrityViolationException e) {
+    public ErrorInfo dataIntegrityViolationErrorHandler(HttpServletRequest req, DataIntegrityViolationException e) {
         log.error("DataIntegrityViolationException at request " + req.getRequestURL(), e);
         Throwable rootCause = ValidationUtil.getRootCause(e);
 
         HttpStatus httpStatus = HttpStatus.CONFLICT;
-        ModelAndView mav = new ModelAndView("exception", Map.of("status", httpStatus,
-                "message", "User with this email already exists",
-                "exception", rootCause));
-        mav.setStatus(httpStatus);
-        return mav;
+
+        return new ErrorInfo(req.getRequestURL(), ErrorType.DATA_ERROR, "User with this email already exists");
+//        ModelAndView mav = new ModelAndView("exception", Map.of("status", httpStatus,
+//                "message", "User with this email already exists",
+//                "exception", rootCause));
+//        mav.setStatus(httpStatus);
+//        return mav;
     }
 
     @ExceptionHandler(Exception.class)
